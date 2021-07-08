@@ -64,6 +64,9 @@ public class Sintactico implements Tipo {
 							case INT:
 								errores += intcito(tokens.get(linea));
 								break;
+							case FLOAT:
+								errores += floatito(tokens.get(linea));
+								break;
 							case BOOLEAN:
 								errores += booleancito(tokens.get(linea));
 								break;
@@ -105,6 +108,137 @@ public class Sintactico implements Tipo {
 		}
 		return errores;
 	}
+
+	private static String floatito(ArrayList<Token> tokens) {
+		String error = "";
+		ArrayList<Integer> C_A = new ArrayList<Integer>();
+		ArrayList<Integer> esp = new ArrayList<Integer>();
+		ArrayList<Integer> P_A = new ArrayList<Integer>();
+
+		int posicion = 0;
+		int puntoEsperado = 0, puntoEsperadoC = 0;
+
+		for(int i = checar;i<tokens.size();i++) {
+			//System.out.println(tokens.get(i).getValor());
+			for(int q = 0;q<esp.size();q++) {
+				if(esp.get(q) == tokens.get(i).getTipo()) {
+					esp.clear();
+					break;
+				}
+			}
+			if(esp.size() == 0) {
+				switch(tokens.get(i).getTipo()) {
+					case FLOAT:
+						esp.add(IDENT);
+						esp.add(CORCHETE_A);
+						break;
+					case PARENTESIS_A:
+						esp.add(DECIMAL);
+						esp.add(IDENT);
+						P_A.add(1);
+						break;
+					case IDENT:
+						esp.add(IGUAL);
+						esp.add(SUMA);
+						esp.add(RESTA);
+						esp.add(DIV);
+						esp.add(POR);
+						esp.add(PUNTO);
+						esp.add(PUNTO_COMA);
+						puntoEsperadoC = 1;
+						break;
+					case IGUAL:
+						esp.add(DECIMAL);
+						esp.add(RESTA);
+						esp.add(NEW);
+						esp.add(IDENT);
+						esp.add(PARENTESIS_A);
+						esp.add(PUNTO);
+						puntoEsperado = 1;
+						puntoEsperadoC = 0;
+						break;
+					case NEW:
+						esp.add(INT);
+						break;
+					case DECIMAL:
+						esp.add(SUMA);
+						esp.add(RESTA);
+						esp.add(DIV);
+						esp.add(POR);
+						esp.add(PUNTO);
+						esp.add(PARENTESIS_C);
+						esp.add(PUNTO_COMA);
+						break;
+					case SUMA:
+					case RESTA:
+					case DIV:
+					case POR:
+						esp.add(PUNTO);
+						esp.add(IDENT);
+						esp.add(DECIMAL);
+						esp.add(PARENTESIS_A);
+						if(tokens.get(i).getTipo() == POR) esp.add(RESTA);
+						break;
+					case CORCHETE_A:
+						esp.add(DECIMAL);
+						esp.add(IDENT);
+						esp.add(CORCHETE_C);
+						C_A.add(1);
+						break;
+					case PUNTO:
+						esp.add(DECIMAL);
+						if(puntoEsperado > 0){
+							puntoEsperado--;
+						}
+						else {
+							if(puntoEsperadoC >0){
+								puntoEsperadoC--;
+							}
+							else {
+								error += error(null,tokens.get(i).getRenglon(),".");
+							}
+						}
+						break;
+					case CORCHETE_C: // no se :c
+						esp.add(SUMA);
+						esp.add(RESTA);
+						esp.add(POR);
+						esp.add(DIV);
+						if(C_A.size()!=0)
+							C_A.remove(C_A.size()-1);
+						else
+							error += error(null,tokens.get(i).getRenglon(),"]");
+						break;
+					case PARENTESIS_C:
+						esp.add(POR);
+						esp.add(SUMA);
+						esp.add(DIV);
+						esp.add(RESTA);
+						esp.add(PUNTO_COMA);
+						posicion = i;
+						if(P_A.size()!=0)
+							P_A.remove(P_A.size()-1);
+						else
+							error += error(null,tokens.get(i).getRenglon(),")");
+						break;
+					case PUNTO_COMA:
+						posicion = i;
+						break;
+				}
+			}else {
+				error+= error(tokens.get(i),0,"");
+				for(int a=esp.size()-1;a>=0;a--)
+					esp.remove(a);
+			}
+
+			if(posicion == tokens.size()-1) {
+				checar = posicion;
+				finalizar = true;
+			}
+		}
+		return error;
+	}
+
 	private static String error(Token token,int linea,String noEsperado) {
 		if(token != null)
 			return " ERROR SINTACTICO EN LA LINEA " + token.getRenglon() + " EN LA LA COLUMNA "+ token.getNoToken() + " NO SE ESPERABA *** " + token.getValor() + " ***.\n";
@@ -471,7 +605,7 @@ public class Sintactico implements Tipo {
 					break;
 				}
 			}
-			System.out.println(tokens.get(i).getValor());
+			//System.out.println(tokens.get(i).getValor());
 			if(esp.size() == 0) {
 				switch(tokens.get(i).getTipo()) {
 				case INT:
@@ -535,6 +669,7 @@ public class Sintactico implements Tipo {
 					else 
 						error += error(null,tokens.get(i).getRenglon(),"]");
 					break;
+
 				case PARENTESIS_C:
 					esp.add(POR);
 					esp.add(SUMA);
@@ -711,17 +846,25 @@ public class Sintactico implements Tipo {
 					esp.add(SUMA);
 					esp.add(RESTA);
 					esp.add(POR);
+					esp.add(AND);
 				}
 				if(tipo == BOOLEAN || tipo == PARENTESIS_A || tipo == IGUAL || tipo == MENOR || tipo == AND) {
 					esp.add(IDENT);
-					if(tipo == PARENTESIS_A || tipo == MENOR || tipo == IGUAL)
+					if(tipo == PARENTESIS_A || tipo == MENOR || tipo == IGUAL) {
 						esp.add(NUM);
+						esp.add(TRUE);
+						esp.add(FALSE);
+					}
 					if(tipo==MENOR)
 						esp.add(PARENTESIS_A);
 					if(tipo==IGUAL) {
 						esp.add(NUM);
 						esp.add(NEGACION);
 					}
+				}
+				if(tipo == TRUE || tipo == FALSE){
+					esp.add(AND);
+					esp.add(PARENTESIS_C);
 				}
 				if(tipo == IDENT || tipo == NUM) {
 					esp.add(MENOR);
@@ -801,13 +944,14 @@ public class Sintactico implements Tipo {
 					esp.add(PUNTO_COMA);
 				}
 					
-				if(tipo != NUM && tipo != THIS &&tipo != LENGTH && tipo != CORCHETE_C && tipo != PARENTESIS_C && tipo != PUNTO_COMA && tipo != TRUE && tipo != FALSE) {
+				if(tipo != NUM && tipo!=DECIMAL&&tipo != THIS &&tipo != LENGTH && tipo != CORCHETE_C && tipo != PARENTESIS_C && tipo != PUNTO_COMA && tipo != TRUE && tipo != FALSE) {
 					esp.add(IDENT);
 					
 				}
 				if(tipo == DIV) {
 					esp.add(IDENT);
 					esp.add(NUM);
+					esp.add(DECIMAL);
 				}
 				if(tipo == CORCHETE_A || tipo == IGUAL)
 					noTiene = true;
@@ -815,11 +959,12 @@ public class Sintactico implements Tipo {
 					esp.add(PARENTESIS_A); // num = num*(this.ALGo);M 
 					esp.add(THIS);
 					esp.add(NUM);
+					esp.add(DECIMAL);
 				}
 				if(tipo == POR || tipo == IGUAL || tipo == DIV) {
 					esp.add(RESTA);
 				}
-				if(tipo == IDENT || tipo == NUM || tipo == LENGTH || tipo == CORCHETE_C || tipo == PARENTESIS_C) {
+				if(tipo == IDENT || tipo == NUM || tipo == DECIMAL|| tipo == LENGTH || tipo == CORCHETE_C || tipo == PARENTESIS_C) {
 					esp.add(SUMA);
 					esp.add(RESTA);
 					esp.add(DIV);
@@ -833,8 +978,10 @@ public class Sintactico implements Tipo {
 						esp.add(NEW);
 						esp.add(THIS);
 					}
-					if (tipo==IGUAL)
+					if (tipo==IGUAL) {
 						esp.add(NUM);
+						esp.add(DECIMAL);
+					}
 					
 				}
 				

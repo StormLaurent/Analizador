@@ -8,6 +8,7 @@
 */
 package clasesBase;
 
+import java.sql.SQLOutput;
 import java.util.*;
 import java.util.regex.*;
 
@@ -16,9 +17,9 @@ import javax.swing.*;
 import arbolSintactico.Sintactico;
 
 public class Palabritas implements Tipo {
-	private final String[] palabras = {"public", "class", "int", "boolean", 
+	private final String[] palabras = {"public", "class", "int","boolean",
 			"if", "else", "while", "true", "false", "this", "new", "length",
-			"System","out","print","return"};
+			"System","out","print","return","float"};
 	private final String[] signos = {"+","-", "*", "<", "=", "/",/* / */ 
 			"(", ")", "[", "]", "{", "}", "&&", ";", ",", ".","!"}; //OMG TENGO CONTROOOOL
 	private ArrayList<ArrayList<Token>> tokens = new ArrayList<ArrayList<Token>>();
@@ -29,6 +30,7 @@ public class Palabritas implements Tipo {
 	private Pattern patron2;
 	private Pattern patron3;
 	private Matcher verificar, veri;
+	public Semantico semantico;
 
 
 	private String errorL = " LECTURA DE CODIGO COMPLETADA.\n";
@@ -41,6 +43,7 @@ public class Palabritas implements Tipo {
 	
 
 	public void analizador() {
+
 		tokenizador = new StringTokenizer(codigo);
 		token = "";
 		int rengloncito = 1;
@@ -62,10 +65,11 @@ public class Palabritas implements Tipo {
 		}
 		
 		errorL += Sintactico.VerificadorSintactico(tokens);
-		
-		
-		//codigoInter = new CodigoIntermedio(semantico);
-		//codigoInter.evaluarExpresion();
+
+
+		semantico = new Semantico(tokens);
+		errorL += "\n"+semantico.generarTablaSimbolos(tokens);
+		//System.out.println(tokens.toString());
 		for(int x = tokens.size()-1;x>=0;x--)
 			tokens.remove(x);
 		
@@ -145,65 +149,73 @@ public class Palabritas implements Tipo {
 						valor = palabra;
 						tipin = NUM;
 					}else {
-						tipo = palabra;
-						valor = tipo;
-						switch(palabra) {
-						case "+":
-							tipin = SUMA;
-							break;
-						case "-":
-							tipin = RESTA;
-							break;
-						case "*":
-							tipin = POR;
-							break;
-						case "<":
-							tipin = MENOR;
-							break;
-						case "=":
-							tipin = IGUAL;
-							break;
-						case "(":
-							tipin = PARENTESIS_A;
-							break;
-						case ")":
-							tipin = PARENTESIS_C;
-							break;
-						case "[":
-							tipin = CORCHETE_A;
-							break;
-						case "]":
-							tipin = CORCHETE_C;
-							break;
-						case "{":
-							tipin = LLAVE_A;
-							break;
-						case "}":
-							tipin = LLAVE_C;
-							break;
-						case "&&":
-							tipin = AND;
-							break;
-						case ";":
-							tipin = PUNTO_COMA;
-							break;
-						case ",":
-							tipin = COMA;
-							break;
-						case ".":
-							tipin = PUNTO;
-							break;
-						case "!":
-							tipin = NEGACION;
-							break;
-						case "/":
-							tipin = DIV;
-							break;
-						default:
-							tipo = "ERROR";
-								errorL += " ERROR LEXICO EN LA LINEA "+renglon+" Y EN LA COLUMNA "+columna+". ENTRADA INVALIDA: "+palabra+".\n";
+						patron = Pattern.compile("(([0-9]+([0-9])*)*[.])?([0-9]+([0-9])*)+");
+						verificar = patron.matcher(palabra);
+						if(verificar.matches()){
+							tipo = "Float";
+							valor = palabra;
+							tipin = DECIMAL;
+						}else{
+							tipo = palabra;
 							valor = tipo;
-							break;
+							switch(palabra) {
+								case "+":
+									tipin = SUMA;
+									break;
+								case "-":
+									tipin = RESTA;
+									break;
+								case "*":
+									tipin = POR;
+									break;
+								case "<":
+									tipin = MENOR;
+									break;
+								case "=":
+									tipin = IGUAL;
+									break;
+								case "(":
+									tipin = PARENTESIS_A;
+									break;
+								case ")":
+									tipin = PARENTESIS_C;
+									break;
+								case "[":
+									tipin = CORCHETE_A;
+									break;
+								case "]":
+									tipin = CORCHETE_C;
+									break;
+								case "{":
+									tipin = LLAVE_A;
+									break;
+								case "}":
+									tipin = LLAVE_C;
+									break;
+								case "&&":
+									tipin = AND;
+									break;
+								case ";":
+									tipin = PUNTO_COMA;
+									break;
+								case ",":
+									tipin = COMA;
+									break;
+								case ".":
+									tipin = PUNTO;
+									break;
+								case "!":
+									tipin = NEGACION;
+									break;
+								case "/":
+									tipin = DIV;
+									break;
+								default:
+									tipo = "ERROR";
+									errorL += " ERROR LEXICO EN LA LINEA "+renglon+" Y EN LA COLUMNA "+columna+". ENTRADA INVALIDA: "+palabra+".\n";
+									valor = tipo;
+									break;
+							}
 						}
 					}
 				}
@@ -231,23 +243,39 @@ public class Palabritas implements Tipo {
 	private String espacios(String cadena) {
 		
 		for(int i = 0;i<signos.length;i++) {
-			
-				cadena = cadena.replace(signos[i], "@");
-				cadena = cadena.replace("@"," " + signos[i] + " ");
-				System.out.println(cadena);
-			
+					cadena = cadena.replace(signos[i], "@");
+					cadena = cadena.replace("@", " " + signos[i] + " ");
+
+
 		}
-		// algo=algo;
-		// =algo
-		// asi;
-		
+		String aux = "", antes = "";
+		for(int i  = 0; i<cadena.length();i++){
+
+			if(cadena.charAt(i) == '.'){
+				//System.out.println("ENTREEE ");
+				if((cadena.charAt(i-2) >= '0' && cadena.charAt(i-2)<='9' ) && (cadena.charAt(i+2) >= '0' && cadena.charAt(i+2)<='9')) {
+					//System.out.println("a");
+					aux = Character.toString(cadena.charAt(i - 2)) + Character.toString(cadena.charAt(i)) + Character.toString(cadena.charAt(i + 2));
+					antes = Character.toString(cadena.charAt(i - 2)) + " " + Character.toString(cadena.charAt(i)) + " " + Character.toString(cadena.charAt(i + 2));
+					cadena = cadena.replace(antes, aux);
+					//System.out.println(" LO QUE QUEDO: "+ cadena);
+					//System.out.println("MI AUX:"+ aux);
+				}else{
+					if(cadena.charAt(i+2) >= '0' && cadena.charAt(i+2)<='9'){
+						aux = Character.toString(cadena.charAt(i)) +  Character.toString(cadena.charAt(i+2));
+						antes = Character.toString(cadena.charAt(i)) +  " "+Character.toString(cadena.charAt(i+2));
+						cadena = cadena.replace(antes, aux);
+						//System.out.println("TLO QUE QUEDO: "+cadena);
+						//System.out.println("MI AUX: "+aux);
+					}
+				}
+			}
+
+		}
+
 		return cadena;
 	}
-	// Alan se fue por una silla uwu
-	// Y yo que le rayo el codigo xd
-	// Muahahaha
-	// Si ves esto Alan, hola uwu
-	// No se uando diste el control uwu
+
 	public String getErrorL() {
 		return errorL;
 	}

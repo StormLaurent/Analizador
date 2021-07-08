@@ -30,6 +30,7 @@ public interface Tipo {
 	int NEGACION = 17;
 	int PUNTO = 18;
 	int NUM = 19;
+	int DECIMAL = 20;
 	// PALABRAS RESERVADAS
 	int PUBLIC = -1;
 	int CLASS = -2;
@@ -47,6 +48,8 @@ public interface Tipo {
 	int OUT = -14;
 	int PRINT = -15;
 	int RETURN = -16;
+	int FLOAT  = -17;
+
 
 	int ERROR = -666;
 	

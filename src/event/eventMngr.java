@@ -70,11 +70,13 @@ public class eventMngr implements ActionListener{
 					if(panel.getTpnConsolaTabla().getTabCount()>1)
 						panel.getTpnConsolaTabla().removeTabAt(1);
 			}
-			
-			/*JScrollPane contiene1;
-			contiene1 = new JScrollPane(palabritas.tablaSimbolos());
-            */
-			//panel.getTpnConsolaTabla().add("Tabla Simbolos",contiene1);
+			//JTable tablaSimbolos = new JTable(palabritas.semantico.filas,palabritas.semantico.columnas);
+			JScrollPane contiene1;
+
+			contiene1 = new JScrollPane(new JTable(palabritas.semantico.filas,palabritas.semantico.columnas));
+
+
+			panel.getTpnConsolaTabla().add("Tabla Simbolos",contiene1);
 			
 			
 

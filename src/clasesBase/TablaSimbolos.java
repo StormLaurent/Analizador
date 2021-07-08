@@ -3,43 +3,30 @@ package clasesBase;
 public class TablaSimbolos {
 
 
-	private int fila;
 	private String nombre;
 	private String tipoDato;
 	private int posicion;
 	private String valor;
-	private int alcance;
-	
+	private int fila;
 	public TablaSimbolos() {
 		
 	}
 	
-	public TablaSimbolos(String nom, String tipo, int pos, String val, int filaTabla, int alcance) {
+	public TablaSimbolos(String nom, String tipo, int pos, String val, int fila) {
 		nombre = nom;
 		tipoDato = tipo;
 		posicion = pos;
 		valor = val;
-		fila = filaTabla;
-		this.alcance = alcance;
-	}
-	public int getAlcance() {
-		return alcance;
-	}
-	public int getFila() {
-		return fila;
-	}
-	public void setFila(int fila) {
 		this.fila = fila;
 	}
 
-	public void setAlcance(int alcance) {
-		this.alcance = alcance;
-	}
+
+
 	public String getNombre() {
 		return nombre;
 	}
 
-	
+	public int getFila(){return fila; }
 	public void setNombre(String nom) {
 		nombre = nom;
 	}

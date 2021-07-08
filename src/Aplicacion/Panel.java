@@ -153,7 +153,7 @@ public class Panel extends JPanel {
 		btnSalir.setHorizontalTextPosition(javax.swing.SwingConstants.CENTER);
 		btnSalir.setVerticalTextPosition(javax.swing.SwingConstants.BOTTOM);
 		//Modo Obscuro
-		btnModoObscuro = new JButton("Modo Obscuro");
+		btnModoObscuro = new JButton("Modo Oscuro");
 		btnModoObscuro.setBounds(640,250,130,70);
 		btnModoObscuro.addActionListener(new eventMngr(this));
 		ImageIcon iconobtnObscuro = new ImageIcon(this.getClass().getResource("/Imagenes/obs.png"));
