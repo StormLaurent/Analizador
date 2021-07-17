@@ -22,7 +22,9 @@ public class Semantico implements Tipo {
 
         tablaSimbolos = new HashMap<String, TablaSimbolos>();
     }
-
+    public HashMap<String, TablaSimbolos> getTablaSimbolos(){
+        return  tablaSimbolos;
+    }
     // Generar la tabla de simbolos
     public String generarTablaSimbolos(ArrayList<ArrayList<Token>> tokens) {
 
@@ -40,23 +42,23 @@ public class Semantico implements Tipo {
                     case PUBLIC:
                         metodoDeclarado(tokens.get(i));
                         break;
-                    case WHILE: // TambiÃ©n pueden existir muchas sentencias while, y por eso su valor
+                    case WHILE:
                         while_if(tokens.get(i));
-                        // ifWhileVar(tokens.get(i), i);
+
                         break;
                     case IF:
                         while_if(tokens.get(i));
-                        // ifWhileVar(tokens.get(i), i);
+
 
                         break;
-                    case CLASS: // Dioquis pero para decir que se asigna
+                    case CLASS:
 
                         break;
-                    // NO ES QUE VAYAN A TENER LA MISMA FUNCIONALIDAD, AUN NO LES ASIGNO UNA
-                    case RETURN:// solo para validar que lo que se manda existe...
+
+                    case RETURN:
                         break;
-                    // Falta uno por si es LLAVE_A
-                    default: // declaracion o uso de variable
+
+                    default:
                         comprobarVariables(tokens.get(i));
                         if (i == (noLlave + 1)) {
                             noLlave = Integer.MAX_VALUE;
@@ -109,13 +111,13 @@ public class Semantico implements Tipo {
         String valor = "";
         int renglon = numeros.get(i).getRenglon();
         for (; i < numeros.size(); i++) {
+
             if (!pasoIgual) {
                 pasoIgual = numeros.get(i).getTipo() == IGUAL;
             }
             if (numeros.get(i).getTipo() != PUNTO_COMA && numeros.get(i).getTipo() != IGUAL) {
                 valor += " " + numeros.get(i).getValor();
                 if (numeros.get(i).getTipo() != SUMA && numeros.get(i).getTipo() != RESTA && numeros.get(i).getTipo() != POR && numeros.get(i).getTipo() != DIV && numeros.get(i).getTipo() != PARENTESIS_A && numeros.get(i).getTipo() != PARENTESIS_C) {
-
                     if (numeros.get(i).getTipo() == IDENT) {
                         if (tablaSimbolos.containsKey(numeros.get(i).getValor())) {
 
@@ -126,6 +128,9 @@ public class Semantico implements Tipo {
                                     break;
                                 case FLOAT:
                                     tipoVariableStr = "float";
+                                    break;
+                                default:
+                                    tipoVariableStr = "boolean";
                                     break;
                             }
 
@@ -148,9 +153,10 @@ public class Semantico implements Tipo {
                                 errorcin += "¡Error semantico!... en la linea " + numeros.get(i).getRenglon() + " ya que " + numeros.get(i).getValor() + " no es un valor flotante\n";
                                 error = true;
                             } else {
-                                if (numeros.get(i).getTipo() == AND || numeros.get(i).getTipo() == MENOR) {
+                                if(numeros.get(i).getTipo() == MENOR || numeros.get(i).getTipo() == AND ){
                                     errorcin += "¡Error semantico!...en la linea " + numeros.get(i).getRenglon() + " no se pueden usar operadores lógicos en tipos de variables númerica\n";
                                     error = true;
+
                                 }
                             }
                         }
@@ -186,14 +192,16 @@ public class Semantico implements Tipo {
         } else {
             variable = variables.get(0).getValor();
             if (!tablaSimbolos.containsKey(variables.get(0).getValor())) {
-                errorcin += "La variable " + variables.get(0).getValor() + " en la linea " + variables.get(1).getRenglon() + " no ha sido declarada en la linea\n";
+                errorcin += "La variable " + variables.get(0).getValor() + " en la linea " + variables.get(1).getRenglon() + " no ha sido declarada\n";
 
             } else {
-                if (tablaSimbolos.get(variables.get(0).getValor()).getTipoDato().equals("int") || tablaSimbolos.get(variables.get(0).getValor()).getTipoDato().toUpperCase().strip().equals("float")) {
+                System.out.println(" AIUDA");
+                if (tablaSimbolos.get(variables.get(0).getValor()).getTipoDato().equals("int") || tablaSimbolos.get(variables.get(0).getValor()).getTipoDato().equals("float")) {
                     if (tablaSimbolos.get(variables.get(0).getValor()).getTipoDato().equals("int")) {
-                        sonNumeros(variable, variables, 2, INT, "int");
+                        sonNumeros(variable, variables, 2, INT, tablaSimbolos.get(variables.get(0).getValor()).getTipoDato());
                     } else {
-                        sonNumeros(variable, variables, 2, FLOAT, "float");
+                        System.out.println(" AIUDA");
+                        sonNumeros(variable, variables, 2, FLOAT, tablaSimbolos.get(variables.get(0).getValor()).getTipoDato());
                     }
                 } else {
                     sonExpresiones(variable, variables, 2, true);
@@ -201,6 +209,7 @@ public class Semantico implements Tipo {
             }
         }
     }
+
 
     private void sonExpresiones(String variable, ArrayList<Token> expresiones, int i, boolean asign) {
         boolean error = false, operandoNum = true, operandoLog = true, varNumerica = true, varLogica = true, primeraVuelta = true;
@@ -305,7 +314,7 @@ public class Semantico implements Tipo {
     private void agregarValor(String variable, String tipo, int renglon, String valor) {
         String[] array = {"1", "2", "3"};
 
-        //System.out.println(Arrays.toString(array));
+
         if (!tablaSimbolos.containsKey(variable)) {
             tablaSimbolos.put(variable, new TablaSimbolos(variable, tipo, renglon, valor, fila));
             filas[fila][0] = variable;
@@ -319,6 +328,6 @@ public class Semantico implements Tipo {
             filas[tablaSimbolos.get(variable).getFila()][3] = valor;
         }
 
-        //System.out.println(Arrays.toString(filas));
+
     }
 }

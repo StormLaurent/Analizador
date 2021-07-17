@@ -360,6 +360,7 @@ public class Sintactico implements Tipo {
 					esp.add(INT);
 					esp.add(BOOLEAN);
 					esp.add(IDENT);
+					esp.add(FLOAT);
 					break;
 				case INT:
 					esp.add(IDENT);
@@ -375,6 +376,7 @@ public class Sintactico implements Tipo {
 				case COMA:
 					esp.add(IDENT);
 					esp.add(INT);
+					esp.add(FLOAT);
 					esp.add(BOOLEAN);
 					break;
 				case PARENTESIS_A:
@@ -383,6 +385,7 @@ public class Sintactico implements Tipo {
 					esp.add(PARENTESIS_C);
 					esp.add(INT);
 					esp.add(BOOLEAN);
+					esp.add(FLOAT);
 					P_A.add(1);
 					break;
 				case PARENTESIS_C:

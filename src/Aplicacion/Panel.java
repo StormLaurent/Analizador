@@ -41,8 +41,8 @@ public class Panel extends JPanel {
 	private JScrollPane scbRenglones;
 	
 	public Panel() {
-		setLayout(null); 
-	
+		setLayout(null);
+
 		tpnConsolaTabla = new JTabbedPane();
 		//--------------------------------------------------
 		//---- CONTENEDOR PARA VER EL NUMERO DE RENGLON ----
@@ -185,6 +185,7 @@ public class Panel extends JPanel {
 	    add(btnModoObscuro);
 	    add(tpnConsolaTabla);
 		add(btnSalir);
+
 	    
 	}
 

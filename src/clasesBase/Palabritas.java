@@ -21,7 +21,7 @@ public class Palabritas implements Tipo {
 			"if", "else", "while", "true", "false", "this", "new", "length",
 			"System","out","print","return","float"};
 	private final String[] signos = {"+","-", "*", "<", "=", "/",/* / */ 
-			"(", ")", "[", "]", "{", "}", "&&", ";", ",", ".","!"}; //OMG TENGO CONTROOOOL
+			"(", ")", "[", "]", "{", "}", "&&", ";", ",", ".","!"};
 	private ArrayList<ArrayList<Token>> tokens = new ArrayList<ArrayList<Token>>();
 	
 	private String codigo, token;
@@ -31,7 +31,7 @@ public class Palabritas implements Tipo {
 	private Pattern patron3;
 	private Matcher verificar, veri;
 	public Semantico semantico;
-
+    public CodigoIntermedio codigoIntermedio;
 
 	private String errorL = " LECTURA DE CODIGO COMPLETADA.\n";
 	int numerito;
@@ -69,7 +69,10 @@ public class Palabritas implements Tipo {
 
 		semantico = new Semantico(tokens);
 		errorL += "\n"+semantico.generarTablaSimbolos(tokens);
-		//System.out.println(tokens.toString());
+
+		codigoIntermedio = new CodigoIntermedio(semantico.getTablaSimbolos());
+		codigoIntermedio.validarOperacion();
+
 		for(int x = tokens.size()-1;x>=0;x--)
 			tokens.remove(x);
 		
@@ -85,7 +88,7 @@ public class Palabritas implements Tipo {
 			}
 		linea = espacios(linea);
 		lexico = new StringTokenizer(linea);
-		//patron = Pattern.compile("[a-zA-Z]+([a-zA-Z])*");
+
 		int posicion = -1;
 		int columna = 1;
 		int tipin = ERROR;
@@ -252,21 +255,19 @@ public class Palabritas implements Tipo {
 		for(int i  = 0; i<cadena.length();i++){
 
 			if(cadena.charAt(i) == '.'){
-				//System.out.println("ENTREEE ");
+
 				if((cadena.charAt(i-2) >= '0' && cadena.charAt(i-2)<='9' ) && (cadena.charAt(i+2) >= '0' && cadena.charAt(i+2)<='9')) {
-					//System.out.println("a");
+
 					aux = Character.toString(cadena.charAt(i - 2)) + Character.toString(cadena.charAt(i)) + Character.toString(cadena.charAt(i + 2));
 					antes = Character.toString(cadena.charAt(i - 2)) + " " + Character.toString(cadena.charAt(i)) + " " + Character.toString(cadena.charAt(i + 2));
 					cadena = cadena.replace(antes, aux);
-					//System.out.println(" LO QUE QUEDO: "+ cadena);
-					//System.out.println("MI AUX:"+ aux);
+
 				}else{
 					if(cadena.charAt(i+2) >= '0' && cadena.charAt(i+2)<='9'){
 						aux = Character.toString(cadena.charAt(i)) +  Character.toString(cadena.charAt(i+2));
 						antes = Character.toString(cadena.charAt(i)) +  " "+Character.toString(cadena.charAt(i+2));
 						cadena = cadena.replace(antes, aux);
-						//System.out.println("TLO QUE QUEDO: "+cadena);
-						//System.out.println("MI AUX: "+aux);
+
 					}
 				}
 			}

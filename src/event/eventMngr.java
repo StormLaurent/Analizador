@@ -213,6 +213,7 @@ public class eventMngr implements ActionListener{
 			panel.setObs(false);
 		}
 			panel.getBtnModoObscuro().setIcon(icon);
+
 		}
 	}
 	
