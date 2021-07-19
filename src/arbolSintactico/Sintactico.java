@@ -111,6 +111,7 @@ public class Sintactico implements Tipo {
 
 	private static String floatito(ArrayList<Token> tokens) {
 		String error = "";
+		boolean parent_A = false;
 		ArrayList<Integer> C_A = new ArrayList<Integer>();
 		ArrayList<Integer> esp = new ArrayList<Integer>();
 		ArrayList<Integer> P_A = new ArrayList<Integer>();
@@ -136,6 +137,7 @@ public class Sintactico implements Tipo {
 						esp.add(DECIMAL);
 						esp.add(IDENT);
 						P_A.add(1);
+						parent_A = true;
 						break;
 					case IDENT:
 						esp.add(IGUAL);
@@ -146,6 +148,9 @@ public class Sintactico implements Tipo {
 						esp.add(PUNTO);
 						esp.add(PUNTO_COMA);
 						puntoEsperadoC = 1;
+						if(parent_A) {
+							esp.add(PARENTESIS_C);
+						}
 						break;
 					case IGUAL:
 						esp.add(DECIMAL);
@@ -216,6 +221,7 @@ public class Sintactico implements Tipo {
 						esp.add(RESTA);
 						esp.add(PUNTO_COMA);
 						posicion = i;
+						parent_A = false;
 						if(P_A.size()!=0)
 							P_A.remove(P_A.size()-1);
 						else
@@ -306,7 +312,7 @@ public class Sintactico implements Tipo {
 						esp = IDENT;
 						esperado = "IDENTIFICADOR";
 					break;
-					// Este es un cambio innecesario
+
 					case IDENT:
 						esp = LLAVE_A;
 						esperado = "{";
@@ -595,6 +601,7 @@ public class Sintactico implements Tipo {
 	// Comprueba int
 	public static String intcito(ArrayList<Token> tokens) {
 		String error = "";
+		boolean parent_A =false;
 		ArrayList<Integer> C_A = new ArrayList<Integer>();
 		ArrayList<Integer> esp = new ArrayList<Integer>();
 		ArrayList<Integer> P_A = new ArrayList<Integer>();
@@ -618,6 +625,7 @@ public class Sintactico implements Tipo {
 				case PARENTESIS_A:
 					esp.add(NUM);
 					esp.add(IDENT);
+					parent_A = true;
 					P_A.add(1);
 					break;
 				case IDENT:
@@ -628,6 +636,10 @@ public class Sintactico implements Tipo {
 					esp.add(POR);
 					esp.add(PUNTO);
 					esp.add(PUNTO_COMA);
+					if(parent_A) {
+						esp.add(PARENTESIS_C);
+					}
+
 					break;
 				case IGUAL:
 					esp.add(NUM);
@@ -680,6 +692,7 @@ public class Sintactico implements Tipo {
 					esp.add(RESTA);
 					esp.add(PUNTO_COMA);
 					posicion = i;
+					parent_A = false;
 					if(P_A.size()!=0)
 						P_A.remove(P_A.size()-1);
 					else 

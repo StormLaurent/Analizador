@@ -70,7 +70,7 @@ public class Palabritas implements Tipo {
 		semantico = new Semantico(tokens);
 		errorL += "\n"+semantico.generarTablaSimbolos(tokens);
 
-		codigoIntermedio = new CodigoIntermedio(semantico.getTablaSimbolos());
+		codigoIntermedio = new CodigoIntermedio(semantico.getTablaSimbolos(),semantico.filas);
 		codigoIntermedio.validarOperacion();
 
 		for(int x = tokens.size()-1;x>=0;x--)
@@ -107,7 +107,7 @@ public class Palabritas implements Tipo {
 						return;
 					}
 				}catch(Exception e) {
-					System.out.println("DIVISION");
+
 				}
 			if(palabra.charAt(0) == '*' && comentarioLargo) {
 				++comen;
@@ -275,6 +275,9 @@ public class Palabritas implements Tipo {
 		}
 
 		return cadena;
+	}
+	public String getCuadruplos(){
+		return codigoIntermedio.getCuadruplo()+"</body></html>";
 	}
 
 	public String getErrorL() {

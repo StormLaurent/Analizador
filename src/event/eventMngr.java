@@ -77,6 +77,11 @@ public class eventMngr implements ActionListener{
 
 
 			panel.getTpnConsolaTabla().add("Tabla Simbolos",contiene1);
+
+			JScrollPane cuadruplos;
+
+			cuadruplos = new JScrollPane(new JLabel(palabritas.getCuadruplos()));
+			panel.getTpnConsolaTabla().add("Cuadruplos",cuadruplos);
 			
 			
 
