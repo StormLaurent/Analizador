@@ -32,6 +32,7 @@ public class Palabritas implements Tipo {
 	private Matcher verificar, veri;
 	public Semantico semantico;
     public CodigoIntermedio codigoIntermedio;
+    private CodigoObjeto codigoObjeto;
 
 	private String errorL = " LECTURA DE CODIGO COMPLETADA.\n";
 	int numerito;
@@ -72,6 +73,8 @@ public class Palabritas implements Tipo {
 
 		codigoIntermedio = new CodigoIntermedio(semantico.getTablaSimbolos(),semantico.filas);
 		codigoIntermedio.validarOperacion();
+
+		codigoObjeto = new CodigoObjeto(codigoIntermedio.getCuadruplosArray(), codigoIntermedio.getDeclaraciones());
 
 		for(int x = tokens.size()-1;x>=0;x--)
 			tokens.remove(x);

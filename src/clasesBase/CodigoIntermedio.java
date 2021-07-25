@@ -1,6 +1,8 @@
 package clasesBase;
 
 
+import java.lang.reflect.Array;
+import java.nio.charset.StandardCharsets;
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.StringTokenizer;
@@ -11,12 +13,21 @@ public class CodigoIntermedio {
     private ArrayList<String>posfija;
     private ArrayList<String>operador;
     private String cuadruplo = "<html> <body>";
+    private ArrayList<String> temporales;
+    private ArrayList<String> variables;
+    private ArrayList<ArrayList<String>> cuadruplos;
+    private ArrayList<String[]> declar_Var;
+
     int count = 0;
     private String[][] filas;
     public CodigoIntermedio( HashMap<String, TablaSimbolos> tbSimbolos, String[][] filas){
         this.tablaSimbolos = tbSimbolos;
         posfija = new ArrayList<>();
         operador = new ArrayList<>();
+        temporales = new ArrayList<>();
+        variables = new ArrayList<>();
+        cuadruplos = new ArrayList<>();
+        declar_Var = new ArrayList<>();
         this.filas = filas;
     }
     public void validarOperacion(){
@@ -24,10 +35,17 @@ public class CodigoIntermedio {
             if(!tablaSimbolos.get(clave).getTipoDato().equals("boolean")){
                 String expresion = tablaSimbolos.get(clave).getValor();
                 posfijo(tablaSimbolos.get(clave).getNombre(),expresion);
+                declar_Var.add(new String[3]);
+                declar_Var.get(declar_Var.size()-1)[0] =clave;
+                declar_Var.get(declar_Var.size()-1)[2] =tablaSimbolos.get(clave).getTipoDato();
                 evaluarExpresion(clave+" = "+expresion,clave, tablaSimbolos.get(clave).getTipoDato().equals("int"));
                 posfija.clear();
             }
         }
+    }
+    // a = 10+2*3/4;
+    public ArrayList<String[]> getDeclaraciones(){
+        return declar_Var;
     }
     public void posfijo(String var, String expresion) {
         posfija = new ArrayList<>();
@@ -113,17 +131,20 @@ public class CodigoIntermedio {
         else
         return "";
     }
+    int i = 1;
     public void evaluarExpresion(String expresion,String variable, boolean entero){
         cuadruplo += "<font color='#7a3858'>=====================================================</font><br>";
         cuadruplo += " &nbsp; &nbsp; &nbsp;  &nbsp; &nbsp; &nbsp; <font color='#622a85'> Cuadruplo #"+(++count)+"</font><br>";
         cuadruplo += expresion+"<br>";
         cuadruplo += "<font color ='blue'><u><b>RESULTADO&nbsp; &nbsp; &nbsp; OPERADOR&nbsp; &nbsp; &nbsp;OPERANDO1&nbsp; &nbsp; &nbsp; OPERANDO2</b></u></font><br>";
+
+        cuadruplos.add(new ArrayList<>());
         String posfijo = posfija.get(posfija.size()-1);
         StringTokenizer evaluar = new StringTokenizer(posfijo," ");
         String tokens;
         ArrayList<String> numeros = new ArrayList<>();
         ArrayList<ArrayList<String>> tabla = new ArrayList<>();
-        int i = 1;
+
         int op1 = Integer.MIN_VALUE;
         int op2 = Integer.MAX_VALUE;
         double dop1 = Double.MIN_VALUE;
@@ -170,6 +191,21 @@ public class CodigoIntermedio {
                 }
                 cuadruplo += "&nbsp; &nbsp;"+"Salcido"+i+"&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  &nbsp;  &nbsp;  &nbsp; <font color = 'teal'>"+tokens+" </font> &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  &nbsp;  &nbsp;  &nbsp;"+tVariable+"&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  &nbsp;  &nbsp;  &nbsp;"+tVariable2+"&nbsp; &nbsp; &nbsp; &nbsp;"+"<br>";
                 numeros.add("Salcido"+i);
+
+                // rssultado operador   operando 2 operando1
+                 getCuadruplos().add(numeros.get(numeros.size()-1));
+                 getCuadruplos().add(tokens);
+                 getCuadruplos().add(tVariable);
+                 getCuadruplos().add(tVariable2);
+
+                // size -1 ... 15, 14 0-14
+                cuadruplos.get(cuadruplos.size()-1);
+                declar_Var.add(new String[3]);
+                declar_Var.get(declar_Var.size()-1)[0] = numeros.get(numeros.size()-1);
+                declar_Var.get(declar_Var.size()-1)[2] = "0";
+                declar_Var.get(declar_Var.size()-1)[3] = (entero)  ? "int" : "float" ;
+
+
                 i++;
 
                 if(entero){
@@ -224,21 +260,46 @@ public class CodigoIntermedio {
         if(temporales.size()!= 0) {
             String valor = temporales.remove(temporales.size() - 1);
             if (entero) {
-                cuadruplo +=  "<font color='purple' >&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;"  + variable + "&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  &nbsp;  &nbsp;  &nbsp;" + "=" + "&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  &nbsp;  &nbsp;  &nbsp;" + Integer.parseInt(valor) + "&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  &nbsp;  &nbsp;  &nbsp;" + "</font><br>";
+                cuadruplo +=  "<font color='purple' >&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;"  +variable+  "&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  &nbsp;  &nbsp;  &nbsp;" + "=" + "&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  &nbsp;  &nbsp;  &nbsp;" + Integer.parseInt(valor) + "&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  &nbsp;  &nbsp;  &nbsp;" + "</font><br>";
                 tablaSimbolos.get(variable).setValor(Integer.parseInt(valor)+"");
                 filas[tablaSimbolos.get(variable).getFila()][3] = Integer.parseInt(valor)+"";
+
+              valor = Integer.parseInt(valor)+ "";
             } else {
-                cuadruplo += "<font color='purple' >&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;" + variable + "&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  &nbsp;  &nbsp;  &nbsp;" + "=" + "&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  &nbsp;  &nbsp;  &nbsp;" + valor + "&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  &nbsp;  &nbsp;  &nbsp;" + "</font><br>";
+                cuadruplo += "<font color='purple' >&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;" +variable+ "&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  &nbsp;  &nbsp;  &nbsp;" + "=" + "&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  &nbsp;  &nbsp;  &nbsp;" + valor + "&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  &nbsp;  &nbsp;  &nbsp;" + "</font><br>";
                 tablaSimbolos.get(variable).setValor(valor);
                 filas[tablaSimbolos.get(variable).getFila()][3] = valor;
+
             }
+
+            getCuadruplos().add(variable);
+            getCuadruplos().add("=");
+            getCuadruplos().add(valor);
+            getCuadruplos().add("");
+
+            declar_Var.get(declar_Var.size()-1)[1] ="0";
         }else {
             if (!numeros.isEmpty()) {
-                if (entero) {
-                    cuadruplo += "<i><p bgColor='white'><font color='purple' >&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;" + variable + "&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  &nbsp;  &nbsp;  &nbsp;" + "=" + "&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  &nbsp;  &nbsp;  &nbsp;" + (numeros.remove(numeros.size() - 1)) + "&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  &nbsp;  &nbsp;  &nbsp;" + "</i></font></p><br>";
+                if (entero) { // a = 2:
+                    cuadruplo += "<i><p bgColor='white'><font color='purple' >&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;" + variable + "&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  &nbsp;  &nbsp;  &nbsp;" + "=" + "&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  &nbsp;  &nbsp;  &nbsp;" + (numeros.get(numeros.size() - 1)) + "&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  &nbsp;  &nbsp;  &nbsp;" + "</i></font></p><br>";
                 } else {
-                    cuadruplo += "<font color='purple' >&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;" + variable + "&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  &nbsp;  &nbsp;  &nbsp;" + "=" + "&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  &nbsp;  &nbsp;  &nbsp;" + numeros.remove(numeros.size() - 1) + "&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  &nbsp;  &nbsp;  &nbsp;" + "</font><br>";
+                    cuadruplo += "<font color='purple' >&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;" + variable + "&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  &nbsp;  &nbsp;  &nbsp;" + "=" + "&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  &nbsp;  &nbsp;  &nbsp;" + numeros.get(numeros.size() - 1) + "&nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp; &nbsp;  &nbsp;  &nbsp;  &nbsp;" + "</font><br>";
+
                 }
+
+                declar_Var.get(declar_Var.size()-1)[1] =numeros.remove(numeros.size() - 1);
+                // variable contenido a = 2
+                // int a = 3*2;
+                // int b = 0;
+                // int x = 5+2-3;
+                // int c = 3;
+
+
+                //   A   ---    0
+                //  B           0
+
+
+
             }
         }
         cuadruplo += "<font color='#7a3858'>=====================================================</font><br>";
@@ -249,4 +310,16 @@ public class CodigoIntermedio {
         return cuadruplo;
     }
 
+    // [ [1], [2]. [3] ]
+
+    private ArrayList<String> getCuadruplos(){
+        if(!cuadruplos.isEmpty())
+           return cuadruplos.get(cuadruplos.size()-1);
+        else
+            return null;
+    }
+
+    public ArrayList<ArrayList<String>> getCuadruplosArray() {
+        return cuadruplos;
+    }
 }
